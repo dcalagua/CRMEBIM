@@ -2,6 +2,7 @@ import { requireAdmin } from "@/lib/session";
 import NavShell from "@/components/NavShell";
 
 const links = [
+  { href: "/admin/pipeline", label: "Pipeline" },
   { href: "/admin", label: "Dashboard" },
   { href: "/admin/leads", label: "Leads" },
   { href: "/admin/oportunidades", label: "Oportunidades" },

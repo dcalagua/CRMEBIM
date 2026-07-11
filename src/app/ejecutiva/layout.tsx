@@ -2,6 +2,7 @@ import { requireEjecutiva } from "@/lib/session";
 import NavShell from "@/components/NavShell";
 
 const links = [
+  { href: "/ejecutiva/pipeline", label: "Pipeline" },
   { href: "/ejecutiva", label: "Mis leads" },
   { href: "/ejecutiva/oportunidades", label: "Mis oportunidades" },
 ];

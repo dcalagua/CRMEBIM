@@ -56,7 +56,11 @@ export default function NavShell({
           </div>
         </div>
       </header>
-      <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-6">
+      <main
+        className={`flex-1 w-full px-4 sm:px-6 py-6 ${
+          pathname.includes("/pipeline") ? "" : "max-w-6xl mx-auto"
+        }`}
+      >
         {children}
       </main>
     </div>
