@@ -36,3 +36,17 @@ export function elegirEjecutivaConMenosCarga(cargas: Map<string, number>): strin
 
   return elegido;
 }
+
+/**
+ * Asigna automáticamente una ejecutiva (round-robin por carga) a un lead recién creado
+ * que no tenga ejecutiva ya elegida manualmente. Devuelve el id asignado, o null si no
+ * hay ejecutivas activas.
+ */
+export async function autoAsignarSiCorresponde(
+  cargas: Map<string, number>
+): Promise<string | null> {
+  if (cargas.size === 0) return null;
+  const elegido = elegirEjecutivaConMenosCarga(cargas);
+  if (elegido) cargas.set(elegido, (cargas.get(elegido) ?? 0) + 1);
+  return elegido;
+}

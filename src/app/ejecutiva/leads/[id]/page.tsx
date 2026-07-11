@@ -11,7 +11,7 @@ export default async function EjecutivaLeadPage({
 }) {
   const session = await getServerSession(authOptions);
 
-  const [lead, actividades] = await Promise.all([
+  const [lead, actividades, oportunidad] = await Promise.all([
     prisma.lead.findUnique({
       where: { id: params.id },
       include: { asignadaA: true },
@@ -21,12 +21,22 @@ export default async function EjecutivaLeadPage({
       include: { user: true },
       orderBy: { timestamp: "desc" },
     }),
+    prisma.oportunidad.findFirst({
+      where: { leadId: params.id },
+      orderBy: { createdAt: "desc" },
+    }),
   ]);
 
   if (!lead) notFound();
   if (lead.asignadaAId !== session!.user.id) redirect("/ejecutiva");
 
   return (
-    <FichaLead lead={lead} actividades={actividades} ejecutivas={[]} esAdmin={false} />
+    <FichaLead
+      lead={lead}
+      actividades={actividades}
+      ejecutivas={[]}
+      esAdmin={false}
+      oportunidad={oportunidad}
+    />
   );
 }

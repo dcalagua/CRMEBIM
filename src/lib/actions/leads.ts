@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin, requireSession } from "@/lib/session";
 import { normalizarTelefono } from "@/lib/whatsapp";
+import { cargaActualPorEjecutiva, elegirEjecutivaConMenosCarga } from "@/lib/asignacion";
 import type { EstadoLead } from "@prisma/client";
 
 const ESTADOS: EstadoLead[] = [
@@ -27,7 +28,14 @@ export async function crearLeadManual(formData: FormData) {
     throw new Error("Empresa y teléfono son obligatorios.");
   }
 
-  const asignadaAId = String(formData.get("asignadaAId") ?? "") || null;
+  let asignadaAId = String(formData.get("asignadaAId") ?? "") || null;
+  let autoAsignado = false;
+
+  if (!asignadaAId) {
+    const cargas = await cargaActualPorEjecutiva();
+    asignadaAId = elegirEjecutivaConMenosCarga(cargas);
+    autoAsignado = !!asignadaAId;
+  }
 
   const lead = await prisma.lead.create({
     data: {
@@ -51,7 +59,9 @@ export async function crearLeadManual(formData: FormData) {
         leadId: lead.id,
         userId: session.user.id,
         tipo: "asignacion",
-        detalle: `Lead creado y asignado`,
+        detalle: autoAsignado
+          ? "Lead creado y auto-asignado (round-robin por carga)"
+          : "Lead creado y asignado",
       },
     });
   }
@@ -72,7 +82,7 @@ export async function importarLeadsCSV(
   _prevState: ResultadoImportacion,
   formData: FormData
 ): Promise<ResultadoImportacion> {
-  await requireAdmin();
+  const session = await requireAdmin();
 
   const archivo = formData.get("archivo") as File | null;
   if (!archivo || archivo.size === 0) {
@@ -99,6 +109,7 @@ export async function importarLeadsCSV(
   let nuevos = 0;
   let duplicados = 0;
   const vistosEnArchivo = new Set<string>();
+  const cargas = await cargaActualPorEjecutiva();
 
   for (const fila of data) {
     const empresa = (fila.empresa ?? "").trim();
@@ -112,7 +123,9 @@ export async function importarLeadsCSV(
     }
     vistosEnArchivo.add(telefono);
 
-    await prisma.lead.create({
+    const asignadaAId = elegirEjecutivaConMenosCarga(cargas);
+
+    const lead = await prisma.lead.create({
       data: {
         empresa,
         contactoNombre: fila.contacto_nombre?.trim() || null,
@@ -123,17 +136,31 @@ export async function importarLeadsCSV(
         ciudad: fila.ciudad?.trim() || null,
         departamento: fila.departamento?.trim() || null,
         origen: "csv",
-        estado: "nuevo",
+        asignadaAId: asignadaAId ?? undefined,
+        estado: asignadaAId ? "asignado" : "nuevo",
       },
     });
     nuevos++;
+
+    if (asignadaAId) {
+      cargas.set(asignadaAId, (cargas.get(asignadaAId) ?? 0) + 1);
+      await prisma.actividad.create({
+        data: {
+          leadId: lead.id,
+          userId: session.user.id,
+          tipo: "asignacion",
+          detalle: "Lead importado y auto-asignado (round-robin por carga)",
+        },
+      });
+    }
   }
 
   revalidatePath("/admin/leads");
+  revalidatePath("/ejecutiva");
 
   return {
     ok: true,
-    mensaje: `Importación completa: ${nuevos} leads nuevos, ${duplicados} duplicados omitidos (de ${data.length} filas leídas).`,
+    mensaje: `Importación completa: ${nuevos} leads nuevos (auto-asignados), ${duplicados} duplicados omitidos (de ${data.length} filas leídas).`,
     traidos: data.length,
     nuevos,
     duplicados,

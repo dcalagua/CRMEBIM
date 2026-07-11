@@ -15,11 +15,14 @@ const ESTADOS = [
 const CONTACTADO_O_MAS = ["contactado", "respondio", "agendado", "calificado"];
 const RESPONDIO_O_MAS = ["respondio", "agendado", "calificado"];
 
+const ETAPAS_ABIERTAS_OPORTUNIDAD = ["creada", "propuesta_enviada", "negociacion"];
+
 export default async function AdminDashboardPage() {
-  const [porEstado, ejecutivas, leads, sinTocar] = await Promise.all([
+  const [porEstado, ejecutivas, leads, oportunidades, sinTocar] = await Promise.all([
     prisma.lead.groupBy({ by: ["estado"], _count: { _all: true } }),
     prisma.user.findMany({ where: { rol: "ejecutiva" }, orderBy: { nombre: "asc" } }),
     prisma.lead.findMany({ select: { id: true, estado: true, asignadaAId: true, createdAt: true } }),
+    prisma.oportunidad.findMany(),
     prisma.lead.findMany({
       where: {
         asignadaAId: { not: null },
@@ -74,6 +77,27 @@ export default async function AdminDashboardPage() {
   });
   const maxDia = Math.max(1, ...captadosPorDia.map((d) => d.count));
 
+  const abiertas = oportunidades.filter((o) => ETAPAS_ABIERTAS_OPORTUNIDAD.includes(o.etapa));
+  const ganadas = oportunidades.filter((o) => o.etapa === "cerrada_ganada");
+  const perdidas = oportunidades.filter((o) => o.etapa === "cerrada_perdida");
+  const cerradas = ganadas.length + perdidas.length;
+  const valorPipelineAbierto = abiertas.reduce(
+    (acc, o) => acc + (o.valorEstimado ? Number(o.valorEstimado) : 0),
+    0
+  );
+  const valorGanado = ganadas.reduce(
+    (acc, o) => acc + (o.valorEstimado ? Number(o.valorEstimado) : 0),
+    0
+  );
+  const winRate = cerradas > 0 ? Math.round((ganadas.length / cerradas) * 100) : 0;
+  const ciclosGanados = ganadas
+    .filter((o) => o.cerradaEn)
+    .map((o) => (o.cerradaEn!.getTime() - o.createdAt.getTime()) / (1000 * 60 * 60 * 24));
+  const cicloPromedioDias =
+    ciclosGanados.length > 0
+      ? Math.round(ciclosGanados.reduce((a, b) => a + b, 0) / ciclosGanados.length)
+      : null;
+
   return (
     <div className="space-y-8">
       <h1 className="text-lg font-semibold text-gray-900">Dashboard</h1>
@@ -122,6 +146,42 @@ export default async function AdminDashboardPage() {
               </span>
             </div>
           ))}
+        </div>
+      </div>
+
+      <div className="bg-white border border-gray-200 rounded-xl p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-sm font-semibold text-gray-900">Pipeline de oportunidades (RevOps)</h2>
+          <Link href="/admin/oportunidades" className="text-sm text-emerald-700 hover:underline font-medium">
+            Ver pipeline completo →
+          </Link>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <div>
+            <p className="text-xs text-gray-400">Pipeline abierto (USD)</p>
+            <p className="text-xl font-semibold text-gray-900">
+              {valorPipelineAbierto.toLocaleString("es-BO")}
+            </p>
+            <p className="text-xs text-gray-400">{abiertas.length} activas</p>
+          </div>
+          <div>
+            <p className="text-xs text-gray-400">Ganado (USD)</p>
+            <p className="text-xl font-semibold text-emerald-700">
+              {valorGanado.toLocaleString("es-BO")}
+            </p>
+            <p className="text-xs text-gray-400">{ganadas.length} cerradas ganadas</p>
+          </div>
+          <div>
+            <p className="text-xs text-gray-400">Win rate</p>
+            <p className="text-xl font-semibold text-gray-900">{winRate}%</p>
+            <p className="text-xs text-gray-400">{cerradas} cerradas</p>
+          </div>
+          <div>
+            <p className="text-xs text-gray-400">Ciclo de venta promedio</p>
+            <p className="text-xl font-semibold text-gray-900">
+              {cicloPromedioDias !== null ? `${cicloPromedioDias}d` : "—"}
+            </p>
+          </div>
         </div>
       </div>
 

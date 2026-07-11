@@ -4,6 +4,7 @@ import NavShell from "@/components/NavShell";
 const links = [
   { href: "/admin", label: "Dashboard" },
   { href: "/admin/leads", label: "Leads" },
+  { href: "/admin/oportunidades", label: "Oportunidades" },
   { href: "/admin/agente", label: "Agente Lusha" },
   { href: "/admin/usuarios", label: "Usuarios" },
 ];

@@ -1,7 +1,10 @@
 import { requireEjecutiva } from "@/lib/session";
 import NavShell from "@/components/NavShell";
 
-const links = [{ href: "/ejecutiva", label: "Mis leads" }];
+const links = [
+  { href: "/ejecutiva", label: "Mis leads" },
+  { href: "/ejecutiva/oportunidades", label: "Mis oportunidades" },
+];
 
 export default async function EjecutivaLayout({
   children,

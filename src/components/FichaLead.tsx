@@ -1,6 +1,7 @@
-import type { Actividad, Lead, User } from "@prisma/client";
+import type { Actividad, Lead, Oportunidad, User } from "@prisma/client";
 import EstadoBadge from "@/components/EstadoBadge";
 import BotonWhatsApp from "@/components/BotonWhatsApp";
+import OportunidadPanel from "@/components/OportunidadPanel";
 import { construirLinkWhatsApp } from "@/lib/whatsapp";
 import { asignarLead, cambiarEstadoLead, agregarNota } from "@/lib/actions/leads";
 
@@ -19,6 +20,7 @@ const ETIQUETAS_ACTIVIDAD: Record<string, string> = {
   whatsapp_abierto: "WhatsApp abierto",
   cambio_estado: "Cambio de estado",
   nota: "Nota",
+  oportunidad: "Oportunidad",
 };
 
 export default function FichaLead({
@@ -26,11 +28,13 @@ export default function FichaLead({
   actividades,
   ejecutivas,
   esAdmin,
+  oportunidad,
 }: {
   lead: Lead & { asignadaA: User | null };
   actividades: (Actividad & { user: User })[];
   ejecutivas: User[];
   esAdmin: boolean;
+  oportunidad: Oportunidad | null;
 }) {
   const linkWhatsApp = construirLinkWhatsApp(
     lead.telefono,
@@ -156,8 +160,10 @@ export default function FichaLead({
         </div>
       </div>
 
-      {esAdmin && (
-        <div className="space-y-6">
+      <div className="space-y-6">
+        <OportunidadPanel leadId={lead.id} leadEstado={lead.estado} oportunidad={oportunidad} />
+
+        {esAdmin && (
           <div className="bg-white border border-gray-200 rounded-xl p-6">
             <h2 className="text-sm font-semibold text-gray-900 mb-3">Asignación</h2>
             <form action={asignarLead} className="space-y-3">
@@ -182,8 +188,8 @@ export default function FichaLead({
               </button>
             </form>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }

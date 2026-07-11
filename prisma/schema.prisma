@@ -39,6 +39,15 @@ enum TipoActividad {
   whatsapp_abierto
   cambio_estado
   nota
+  oportunidad
+}
+
+enum EtapaOportunidad {
+  creada
+  propuesta_enviada
+  negociacion
+  cerrada_ganada
+  cerrada_perdida
 }
 
 model User {
@@ -51,9 +60,10 @@ model User {
   activo       Boolean  @default(true)
   createdAt    DateTime @default(now()) @map("created_at")
 
-  leadsAsignados Lead[]       @relation("LeadAsignadaA")
-  actividades    Actividad[]
-  agenteRuns     AgenteRun[]
+  leadsAsignados        Lead[]        @relation("LeadAsignadaA")
+  actividades           Actividad[]
+  agenteRuns            AgenteRun[]
+  oportunidadesAsignadas Oportunidad[]
 
   @@map("users")
 }
@@ -77,11 +87,33 @@ model Lead {
   createdAt      DateTime   @default(now()) @map("created_at")
   updatedAt      DateTime   @updatedAt @map("updated_at")
 
-  actividades Actividad[]
+  actividades   Actividad[]
+  oportunidades Oportunidad[]
 
   @@index([asignadaAId])
   @@index([estado])
   @@map("leads")
+}
+
+model Oportunidad {
+  id                  String           @id @default(cuid())
+  leadId              String           @map("lead_id")
+  lead                Lead             @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  asignadaAId         String           @map("asignada_a_id")
+  asignadaA           User             @relation(fields: [asignadaAId], references: [id])
+  etapa               EtapaOportunidad @default(creada)
+  valorEstimado       Decimal?         @map("valor_estimado") @db.Decimal(12, 2)
+  moneda              String           @default("USD")
+  fechaCierreEstimada DateTime?        @map("fecha_cierre_estimada")
+  motivoPerdida       String?          @map("motivo_perdida")
+  createdAt           DateTime         @default(now()) @map("created_at")
+  updatedAt           DateTime         @updatedAt @map("updated_at")
+  cerradaEn           DateTime?        @map("cerrada_en")
+
+  @@index([leadId])
+  @@index([asignadaAId])
+  @@index([etapa])
+  @@map("oportunidades")
 }
 
 model Actividad {

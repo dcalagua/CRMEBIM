@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { crearClienteLusha } from "@/lib/lusha/client";
 import { SEGMENTOS, PAIS_OBJETIVO, type SegmentoId } from "@/lib/lusha/icp";
 import { normalizarTelefono } from "@/lib/whatsapp";
-import { cargaActualPorEjecutiva, elegirEjecutivaConMenosCarga } from "@/lib/lusha/asignacion";
+import { cargaActualPorEjecutiva, elegirEjecutivaConMenosCarga } from "@/lib/asignacion";
 
 export type ResultadoAgente = {
   traidos: number;

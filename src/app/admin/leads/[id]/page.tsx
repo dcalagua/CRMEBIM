@@ -7,7 +7,7 @@ export default async function AdminLeadPage({
 }: {
   params: { id: string };
 }) {
-  const [lead, actividades, ejecutivas] = await Promise.all([
+  const [lead, actividades, ejecutivas, oportunidad] = await Promise.all([
     prisma.lead.findUnique({
       where: { id: params.id },
       include: { asignadaA: true },
@@ -21,11 +21,21 @@ export default async function AdminLeadPage({
       where: { rol: "ejecutiva", activo: true },
       orderBy: { nombre: "asc" },
     }),
+    prisma.oportunidad.findFirst({
+      where: { leadId: params.id },
+      orderBy: { createdAt: "desc" },
+    }),
   ]);
 
   if (!lead) notFound();
 
   return (
-    <FichaLead lead={lead} actividades={actividades} ejecutivas={ejecutivas} esAdmin />
+    <FichaLead
+      lead={lead}
+      actividades={actividades}
+      ejecutivas={ejecutivas}
+      esAdmin
+      oportunidad={oportunidad}
+    />
   );
 }
