@@ -20,52 +20,54 @@ export default function PipelineBoard({ tarjetas }: { tarjetas: TarjetaPipeline[
   for (const t of tarjetas) porColumna.get(t.columna)?.push(t);
 
   return (
-    <div className="overflow-x-auto pb-2">
-      <div className="flex gap-4 min-w-max">
-        {COLUMNAS.map((columna) => {
-          const items = porColumna.get(columna.id) ?? [];
-          return (
-            <div key={columna.id} className="w-64 shrink-0">
-              <div
-                className={`bg-white border border-gray-200 border-t-4 ${ESTILOS_COLUMNA[columna.id]} rounded-xl`}
-              >
-                <div className="px-3 py-2 border-b border-gray-100 flex items-center justify-between">
-                  <span className="text-sm font-semibold text-gray-900">{columna.titulo}</span>
-                  <span className="text-xs text-gray-400">{items.length}</span>
-                </div>
-                <div className="p-2 space-y-2 max-h-[70vh] overflow-y-auto">
-                  {items.map((t) => (
-                    <Link
-                      key={t.id}
-                      href={t.href}
-                      className="block rounded-lg border border-gray-200 bg-white p-3 hover:border-emerald-300 hover:shadow-sm transition-shadow"
-                    >
-                      <p className="text-sm font-medium text-gray-900 truncate">{t.empresa}</p>
-                      <p className="text-xs text-gray-500 truncate">
-                        {t.contactoNombre ?? "Sin contacto"}
+    <div
+      className="grid gap-2"
+      style={{ gridTemplateColumns: `repeat(${COLUMNAS.length}, minmax(0, 1fr))` }}
+    >
+      {COLUMNAS.map((columna) => {
+        const items = porColumna.get(columna.id) ?? [];
+        return (
+          <div key={columna.id} className="min-w-0">
+            <div
+              className={`bg-white border border-gray-200 border-t-4 ${ESTILOS_COLUMNA[columna.id]} rounded-xl h-full flex flex-col`}
+            >
+              <div className="px-2 py-2 border-b border-gray-100">
+                <p className="text-xs font-semibold text-gray-900 leading-tight break-words">
+                  {columna.titulo}
+                </p>
+                <span className="text-[11px] text-gray-400">{items.length}</span>
+              </div>
+              <div className="p-1.5 space-y-1.5 flex-1 overflow-y-auto max-h-[75vh]">
+                {items.map((t) => (
+                  <Link
+                    key={t.id}
+                    href={t.href}
+                    className="block rounded-md border border-gray-200 bg-white p-2 hover:border-emerald-300 hover:shadow-sm transition-shadow"
+                  >
+                    <p className="text-xs font-medium text-gray-900 truncate">{t.empresa}</p>
+                    <p className="text-[11px] text-gray-500 truncate">
+                      {t.contactoNombre ?? "Sin contacto"}
+                    </p>
+                    {t.ejecutivaNombre && (
+                      <p className="text-[11px] text-gray-400 truncate mt-0.5">
+                        {t.ejecutivaNombre}
                       </p>
-                      {t.ejecutivaNombre && (
-                        <p className="text-xs text-gray-400 mt-1">{t.ejecutivaNombre}</p>
-                      )}
-                      {t.segmento && (
-                        <p className="text-xs text-indigo-600 mt-1 truncate">{t.segmento}</p>
-                      )}
-                      {t.valorEstimado !== null && (
-                        <p className="text-xs font-medium text-emerald-700 mt-1">
-                          USD {t.valorEstimado.toLocaleString("es-BO")}
-                        </p>
-                      )}
-                    </Link>
-                  ))}
-                  {items.length === 0 && (
-                    <p className="text-xs text-gray-300 text-center py-4">Vacío</p>
-                  )}
-                </div>
+                    )}
+                    {t.valorEstimado !== null && (
+                      <p className="text-[11px] font-medium text-emerald-700 mt-0.5">
+                        USD {t.valorEstimado.toLocaleString("es-BO")}
+                      </p>
+                    )}
+                  </Link>
+                ))}
+                {items.length === 0 && (
+                  <p className="text-[11px] text-gray-300 text-center py-4">Vacío</p>
+                )}
               </div>
             </div>
-          );
-        })}
-      </div>
+          </div>
+        );
+      })}
     </div>
   );
 }
