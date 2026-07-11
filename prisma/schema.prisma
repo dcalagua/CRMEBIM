@@ -1,0 +1,112 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Rol {
+  admin
+  ejecutiva
+}
+
+enum PaisEjecutiva {
+  PE
+  EC
+}
+
+enum EstadoLead {
+  nuevo
+  asignado
+  contactado
+  respondio
+  agendado
+  calificado
+  descartado
+}
+
+enum OrigenLead {
+  lusha
+  manual
+  csv
+}
+
+enum TipoActividad {
+  asignacion
+  whatsapp_abierto
+  cambio_estado
+  nota
+}
+
+model User {
+  id           String   @id @default(cuid())
+  nombre       String
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  rol          Rol
+  pais         PaisEjecutiva?
+  activo       Boolean  @default(true)
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  leadsAsignados Lead[]       @relation("LeadAsignadaA")
+  actividades    Actividad[]
+  agenteRuns     AgenteRun[]
+
+  @@map("users")
+}
+
+model Lead {
+  id             String     @id @default(cuid())
+  empresa        String
+  contactoNombre String?    @map("contacto_nombre")
+  cargo          String?
+  telefono       String
+  email          String?
+  sector         String?
+  ciudad         String?
+  departamento   String?
+  origen         OrigenLead @default(manual)
+  lushaId        String?    @map("lusha_id")
+  segmento       String?
+  estado         EstadoLead @default(nuevo)
+  asignadaAId    String?    @map("asignada_a_id")
+  asignadaA      User?      @relation("LeadAsignadaA", fields: [asignadaAId], references: [id])
+  createdAt      DateTime   @default(now()) @map("created_at")
+  updatedAt      DateTime   @updatedAt @map("updated_at")
+
+  actividades Actividad[]
+
+  @@index([asignadaAId])
+  @@index([estado])
+  @@map("leads")
+}
+
+model Actividad {
+  id        String        @id @default(cuid())
+  leadId    String        @map("lead_id")
+  lead      Lead          @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  userId    String        @map("user_id")
+  user      User          @relation(fields: [userId], references: [id])
+  tipo      TipoActividad
+  detalle   String?
+  timestamp DateTime      @default(now())
+
+  @@index([leadId])
+  @@index([userId])
+  @@map("actividades")
+}
+
+model AgenteRun {
+  id            String   @id @default(cuid())
+  ejecutadoPorId String  @map("ejecutado_por_id")
+  ejecutadoPor  User     @relation(fields: [ejecutadoPorId], references: [id])
+  fecha         DateTime @default(now())
+  filtrosUsados Json     @map("filtros_usados")
+  leadsTraidos  Int      @map("leads_traidos")
+  leadsNuevos   Int      @map("leads_nuevos")
+
+  @@map("agente_runs")
+}
