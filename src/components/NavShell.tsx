@@ -22,7 +22,7 @@ export default function NavShell({
   return (
     <div className="min-h-screen flex flex-col">
       <header className="border-b border-gray-200 bg-white">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
+        <div className="w-full px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
           <div className="flex items-center gap-6">
             <span className="font-semibold text-gray-900">{titulo}</span>
             <nav className="flex gap-1">
@@ -56,13 +56,7 @@ export default function NavShell({
           </div>
         </div>
       </header>
-      <main
-        className={`flex-1 w-full px-4 sm:px-6 py-6 ${
-          pathname.includes("/pipeline") ? "" : "max-w-6xl mx-auto"
-        }`}
-      >
-        {children}
-      </main>
+      <main className="flex-1 w-full px-4 sm:px-6 py-6">{children}</main>
     </div>
   );
 }

@@ -50,8 +50,10 @@ export default function FichaLead({
             <div>
               <h1 className="text-lg font-semibold text-gray-900">{lead.empresa}</h1>
               <p className="text-sm text-gray-500">
-                {lead.contactoNombre ?? "Sin contacto"}
+                {[lead.contactoNombre, lead.contactoApellido].filter(Boolean).join(" ") ||
+                  "Sin contacto"}
                 {lead.cargo ? ` · ${lead.cargo}` : ""}
+                {lead.nivelDecision ? ` (${lead.nivelDecision})` : ""}
               </p>
             </div>
             <EstadoBadge estado={lead.estado} />
@@ -71,6 +73,10 @@ export default function FichaLead({
               <dd className="text-gray-900">{lead.sector ?? "—"}</dd>
             </div>
             <div>
+              <dt className="text-gray-400">Tamaño de empresa (empleados)</dt>
+              <dd className="text-gray-900">{lead.tamanoEmpresa ?? "—"}</dd>
+            </div>
+            <div>
               <dt className="text-gray-400">Ciudad / Departamento</dt>
               <dd className="text-gray-900">
                 {[lead.ciudad, lead.departamento].filter(Boolean).join(" / ") || "—"}
@@ -83,6 +89,23 @@ export default function FichaLead({
             <div>
               <dt className="text-gray-400">Ejecutiva</dt>
               <dd className="text-gray-900">{lead.asignadaA?.nombre ?? "Sin asignar"}</dd>
+            </div>
+            <div>
+              <dt className="text-gray-400">LinkedIn del contacto</dt>
+              <dd className="text-gray-900 truncate">
+                {lead.linkedinContacto ? (
+                  <a
+                    href={lead.linkedinContacto}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-emerald-700 hover:underline"
+                  >
+                    Ver perfil
+                  </a>
+                ) : (
+                  "—"
+                )}
+              </dd>
             </div>
             {lead.segmento && (
               <div className="col-span-2">

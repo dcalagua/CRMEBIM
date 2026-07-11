@@ -69,23 +69,27 @@ model User {
 }
 
 model Lead {
-  id             String     @id @default(cuid())
-  empresa        String
-  contactoNombre String?    @map("contacto_nombre")
-  cargo          String?
-  telefono       String
-  email          String?
-  sector         String?
-  ciudad         String?
-  departamento   String?
-  origen         OrigenLead @default(manual)
-  lushaId        String?    @map("lusha_id")
-  segmento       String?
-  estado         EstadoLead @default(nuevo)
-  asignadaAId    String?    @map("asignada_a_id")
-  asignadaA      User?      @relation("LeadAsignadaA", fields: [asignadaAId], references: [id])
-  createdAt      DateTime   @default(now()) @map("created_at")
-  updatedAt      DateTime   @updatedAt @map("updated_at")
+  id               String     @id @default(cuid())
+  empresa          String
+  contactoNombre   String?    @map("contacto_nombre")
+  contactoApellido String?    @map("contacto_apellido")
+  cargo            String?
+  nivelDecision    String?    @map("nivel_decision")
+  telefono         String
+  email            String?
+  linkedinContacto String?    @map("linkedin_contacto")
+  sector           String?
+  tamanoEmpresa    String?    @map("tamano_empresa")
+  ciudad           String?
+  departamento     String?
+  origen           OrigenLead @default(manual)
+  lushaId          String?    @map("lusha_id")
+  segmento         String?
+  estado           EstadoLead @default(nuevo)
+  asignadaAId      String?    @map("asignada_a_id")
+  asignadaA        User?      @relation("LeadAsignadaA", fields: [asignadaAId], references: [id])
+  createdAt        DateTime   @default(now()) @map("created_at")
+  updatedAt        DateTime   @updatedAt @map("updated_at")
 
   actividades   Actividad[]
   oportunidades Oportunidad[]

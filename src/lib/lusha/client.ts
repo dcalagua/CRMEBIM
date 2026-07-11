@@ -5,11 +5,15 @@ const LUSHA_BASE_URL = "https://api.lusha.com";
 export type LushaContacto = {
   lushaId: string;
   nombre: string;
+  apellido: string | null;
   cargo: string | null;
+  nivelDecision: string | null;
   telefono: string | null;
   email: string | null;
+  linkedinContacto: string | null;
   empresa: string;
   sector: string | null;
+  tamanoEmpresa: string | null;
   ciudad: string | null;
 };
 
@@ -48,9 +52,13 @@ export class LushaClient {
       requestId: string;
       data: Array<{
         contactId: string;
-        name?: string;
+        firstName?: string;
+        lastName?: string;
         jobTitle?: string;
+        seniority?: string;
+        linkedinUrl?: string;
         companyName?: string;
+        companySize?: string;
         location?: { city?: string; country?: string };
         companyIndustry?: string;
       }>;
@@ -89,12 +97,16 @@ export class LushaClient {
       const datosEnriquecidos = enrichPorId.get(c.contactId);
       return {
         lushaId: c.contactId,
-        nombre: c.name ?? "Sin nombre",
+        nombre: c.firstName ?? "Sin nombre",
+        apellido: c.lastName ?? null,
         cargo: c.jobTitle ?? null,
+        nivelDecision: c.seniority ?? null,
         telefono: datosEnriquecidos?.phoneNumbers?.[0]?.number ?? null,
         email: datosEnriquecidos?.emailAddresses?.[0]?.email ?? null,
+        linkedinContacto: c.linkedinUrl ?? null,
         empresa: c.companyName ?? "Empresa sin nombre",
         sector: c.companyIndustry ?? null,
+        tamanoEmpresa: c.companySize ?? null,
         ciudad: c.location?.city ?? null,
       };
     });
