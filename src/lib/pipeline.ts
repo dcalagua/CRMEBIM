@@ -93,7 +93,7 @@ export async function obtenerTarjetasPipeline(opts?: {
       ejecutivaNombre: lead.asignadaA?.nombre ?? null,
       segmento: lead.segmento,
       valorEstimado: null,
-      href: `/admin/leads/${lead.id}`,
+      href: `${basePathLeads}/${lead.id}`,
       updatedAt: lead.updatedAt,
     });
   }
