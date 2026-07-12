@@ -6,6 +6,7 @@ const links = [
   { href: "/admin", label: "Dashboard" },
   { href: "/admin/leads", label: "Leads" },
   { href: "/admin/oportunidades", label: "Oportunidades" },
+  { href: "/admin/reportes", label: "Reportes" },
   { href: "/admin/agente", label: "Agente Lusha" },
   { href: "/admin/plantillas", label: "Plantillas" },
   { href: "/admin/usuarios", label: "Usuarios" },
