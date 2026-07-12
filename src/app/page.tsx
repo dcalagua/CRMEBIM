@@ -13,5 +13,5 @@ export default async function Home() {
     redirect("/admin");
   }
 
-  redirect("/ejecutiva/pipeline");
+  redirect("/ejecutiva/hoy");
 }

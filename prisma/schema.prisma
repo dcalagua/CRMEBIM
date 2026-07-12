@@ -40,6 +40,7 @@ enum TipoActividad {
   cambio_estado
   nota
   oportunidad
+  reunion
 }
 
 enum EtapaOportunidad {
@@ -106,6 +107,9 @@ model Lead {
   estado           EstadoLead @default(nuevo)
   asignadaAId      String?    @map("asignada_a_id")
   asignadaA        User?      @relation("LeadAsignadaA", fields: [asignadaAId], references: [id])
+  reunionFecha       DateTime? @map("reunion_fecha")
+  reunionNotas       String?   @map("reunion_notas")
+  proximaAccionFecha DateTime? @map("proxima_accion_fecha")
   createdAt        DateTime   @default(now()) @map("created_at")
   updatedAt        DateTime   @updatedAt @map("updated_at")
 

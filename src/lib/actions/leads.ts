@@ -266,6 +266,7 @@ export async function cambiarEstadoLead(formData: FormData) {
 export async function agregarNota(formData: FormData) {
   const leadId = String(formData.get("leadId") ?? "");
   const texto = String(formData.get("texto") ?? "").trim();
+  const proximaAccionRaw = String(formData.get("proximaAccionFecha") ?? "");
   if (!texto) return;
 
   const { session } = await verificarAccesoLead(leadId);
@@ -279,8 +280,75 @@ export async function agregarNota(formData: FormData) {
     },
   });
 
+  if (proximaAccionRaw) {
+    await prisma.lead.update({
+      where: { id: leadId },
+      data: { proximaAccionFecha: new Date(proximaAccionRaw) },
+    });
+  }
+
   revalidatePath(`/admin/leads/${leadId}`);
   revalidatePath(`/ejecutiva/leads/${leadId}`);
+  revalidatePath("/ejecutiva/hoy");
+}
+
+const ORDEN_FUNNEL: EstadoLead[] = [
+  "nuevo",
+  "asignado",
+  "contactado",
+  "respondio",
+  "agendado",
+  "calificado",
+];
+
+export async function agendarReunion(formData: FormData) {
+  const leadId = String(formData.get("leadId") ?? "");
+  const fechaRaw = String(formData.get("reunionFecha") ?? "");
+  const notas = String(formData.get("reunionNotas") ?? "").trim();
+  if (!fechaRaw) throw new Error("Indica fecha y hora de la reunión.");
+
+  const { session, lead } = await verificarAccesoLead(leadId);
+
+  const indiceActual = ORDEN_FUNNEL.indexOf(lead.estado);
+  const indiceAgendado = ORDEN_FUNNEL.indexOf("agendado");
+  const debeAvanzarEstado = indiceActual >= 0 && indiceActual < indiceAgendado;
+
+  await prisma.lead.update({
+    where: { id: leadId },
+    data: {
+      reunionFecha: new Date(fechaRaw),
+      reunionNotas: notas || null,
+      estado: debeAvanzarEstado ? "agendado" : lead.estado,
+    },
+  });
+
+  await prisma.actividad.create({
+    data: {
+      leadId,
+      userId: session.user.id,
+      tipo: "reunion",
+      detalle: `Reunión agendada para ${new Date(fechaRaw).toLocaleString("es-BO")}${
+        notas ? ` · ${notas}` : ""
+      }`,
+    },
+  });
+
+  if (debeAvanzarEstado) {
+    await prisma.actividad.create({
+      data: {
+        leadId,
+        userId: session.user.id,
+        tipo: "cambio_estado",
+        detalle: `${lead.estado} → agendado`,
+      },
+    });
+  }
+
+  revalidatePath(`/admin/leads/${leadId}`);
+  revalidatePath(`/ejecutiva/leads/${leadId}`);
+  revalidatePath("/admin/leads");
+  revalidatePath("/ejecutiva");
+  revalidatePath("/ejecutiva/hoy");
 }
 
 export async function registrarWhatsappAbierto(leadId: string) {

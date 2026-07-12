@@ -3,6 +3,7 @@ import EstadoBadge from "@/components/EstadoBadge";
 import BotonWhatsApp from "@/components/BotonWhatsApp";
 import OportunidadPanel from "@/components/OportunidadPanel";
 import EmpresaPanel from "@/components/EmpresaPanel";
+import ReunionPanel from "@/components/ReunionPanel";
 import { construirLinkWhatsApp } from "@/lib/whatsapp";
 import { asignarLead, cambiarEstadoLead, agregarNota } from "@/lib/actions/leads";
 
@@ -22,6 +23,7 @@ const ETIQUETAS_ACTIVIDAD: Record<string, string> = {
   cambio_estado: "Cambio de estado",
   nota: "Nota",
   oportunidad: "Oportunidad",
+  reunion: "Reunión",
 };
 
 export default function FichaLead({
@@ -174,6 +176,16 @@ export default function FichaLead({
               placeholder="Detalle de la conversación, próximos pasos, etc."
               className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
             />
+            <div>
+              <label className="block text-xs font-medium text-gray-500 mb-1">
+                Próxima acción (opcional) — cuándo volver a este lead
+              </label>
+              <input
+                type="date"
+                name="proximaAccionFecha"
+                className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+              />
+            </div>
             <button
               type="submit"
               className="rounded-md bg-emerald-600 text-white text-sm font-medium px-4 py-2 hover:bg-emerald-700"
@@ -206,6 +218,8 @@ export default function FichaLead({
       </div>
 
       <div className="space-y-6">
+        <ReunionPanel lead={lead} />
+
         <OportunidadPanel leadId={lead.id} leadEstado={lead.estado} oportunidad={oportunidad} />
 
         {esAdmin && (
