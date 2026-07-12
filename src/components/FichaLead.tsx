@@ -1,7 +1,8 @@
-import type { Actividad, Lead, Oportunidad, User } from "@prisma/client";
+import type { Actividad, Empresa, Lead, Oportunidad, User } from "@prisma/client";
 import EstadoBadge from "@/components/EstadoBadge";
 import BotonWhatsApp from "@/components/BotonWhatsApp";
 import OportunidadPanel from "@/components/OportunidadPanel";
+import EmpresaPanel from "@/components/EmpresaPanel";
 import { construirLinkWhatsApp } from "@/lib/whatsapp";
 import { asignarLead, cambiarEstadoLead, agregarNota } from "@/lib/actions/leads";
 
@@ -29,12 +30,18 @@ export default function FichaLead({
   ejecutivas,
   esAdmin,
   oportunidad,
+  empresa,
+  hermanos,
+  basePathLeads,
 }: {
   lead: Lead & { asignadaA: User | null };
   actividades: (Actividad & { user: User })[];
   ejecutivas: User[];
   esAdmin: boolean;
   oportunidad: Oportunidad | null;
+  empresa: Empresa | null;
+  hermanos: Lead[];
+  basePathLeads: string;
 }) {
   const linkWhatsApp = construirLinkWhatsApp(
     lead.telefono,
@@ -145,6 +152,16 @@ export default function FichaLead({
             </form>
           </div>
         </div>
+
+        {empresa && (
+          <EmpresaPanel
+            empresa={empresa}
+            leadActual={lead}
+            hermanos={hermanos}
+            basePathLeads={basePathLeads}
+            puedeEditar
+          />
+        )}
 
         <div className="bg-white border border-gray-200 rounded-xl p-6">
           <h2 className="text-sm font-semibold text-gray-900 mb-3">Agregar nota</h2>

@@ -68,9 +68,27 @@ model User {
   @@map("users")
 }
 
+model Empresa {
+  id              String   @id @default(cuid())
+  nombre          String
+  sitioWeb        String?  @map("sitio_web")
+  linkedinEmpresa String?  @map("linkedin_empresa")
+  tecnologias     String[] @default([])
+  resumen         String?
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  leads Lead[]
+
+  @@index([nombre])
+  @@map("empresas")
+}
+
 model Lead {
   id               String     @id @default(cuid())
   empresa          String
+  empresaId        String?    @map("empresa_id")
+  empresaRel       Empresa?   @relation(fields: [empresaId], references: [id])
   contactoNombre   String?    @map("contacto_nombre")
   contactoApellido String?    @map("contacto_apellido")
   cargo            String?
@@ -96,6 +114,7 @@ model Lead {
 
   @@index([asignadaAId])
   @@index([estado])
+  @@index([empresaId])
   @@map("leads")
 }
 

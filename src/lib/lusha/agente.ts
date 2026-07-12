@@ -3,6 +3,7 @@ import { crearClienteLusha } from "@/lib/lusha/client";
 import { SEGMENTOS, PAIS_OBJETIVO, type SegmentoId } from "@/lib/lusha/icp";
 import { normalizarTelefono } from "@/lib/whatsapp";
 import { cargaActualPorEjecutiva, elegirEjecutivaConMenosCarga } from "@/lib/asignacion";
+import { upsertEmpresaParaLead } from "@/lib/empresa";
 
 export type ResultadoAgente = {
   traidos: number;
@@ -25,6 +26,7 @@ export async function correrAgenteLusha(opts: {
   );
 
   const cargas = opts.autoAsignar ? await cargaActualPorEjecutiva() : new Map<string, number>();
+  const empresasCache = new Map<string, string>();
 
   let traidos = 0;
   let nuevos = 0;
@@ -56,9 +58,16 @@ export async function correrAgenteLusha(opts: {
         if (asignadaAId) cargas.set(asignadaAId, (cargas.get(asignadaAId) ?? 0) + 1);
       }
 
+      let empresaId = empresasCache.get(contacto.empresa);
+      if (!empresaId) {
+        empresaId = await upsertEmpresaParaLead(contacto.empresa);
+        empresasCache.set(contacto.empresa, empresaId);
+      }
+
       const lead = await prisma.lead.create({
         data: {
           empresa: contacto.empresa,
+          empresaId,
           contactoNombre: contacto.nombre,
           contactoApellido: contacto.apellido,
           cargo: contacto.cargo,

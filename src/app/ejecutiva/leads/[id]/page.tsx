@@ -30,6 +30,16 @@ export default async function EjecutivaLeadPage({
   if (!lead) notFound();
   if (lead.asignadaAId !== session!.user.id) redirect("/ejecutiva");
 
+  const [empresa, hermanos] = await Promise.all([
+    lead.empresaId ? prisma.empresa.findUnique({ where: { id: lead.empresaId } }) : null,
+    lead.empresaId
+      ? prisma.lead.findMany({
+          where: { empresaId: lead.empresaId, id: { not: lead.id } },
+          orderBy: { createdAt: "asc" },
+        })
+      : [],
+  ]);
+
   return (
     <FichaLead
       lead={lead}
@@ -37,6 +47,9 @@ export default async function EjecutivaLeadPage({
       ejecutivas={[]}
       esAdmin={false}
       oportunidad={oportunidad}
+      empresa={empresa}
+      hermanos={hermanos}
+      basePathLeads="/ejecutiva/leads"
     />
   );
 }

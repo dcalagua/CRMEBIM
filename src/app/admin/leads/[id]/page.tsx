@@ -29,6 +29,16 @@ export default async function AdminLeadPage({
 
   if (!lead) notFound();
 
+  const [empresa, hermanos] = await Promise.all([
+    lead.empresaId ? prisma.empresa.findUnique({ where: { id: lead.empresaId } }) : null,
+    lead.empresaId
+      ? prisma.lead.findMany({
+          where: { empresaId: lead.empresaId, id: { not: lead.id } },
+          orderBy: { createdAt: "asc" },
+        })
+      : [],
+  ]);
+
   return (
     <FichaLead
       lead={lead}
@@ -36,6 +46,9 @@ export default async function AdminLeadPage({
       ejecutivas={ejecutivas}
       esAdmin
       oportunidad={oportunidad}
+      empresa={empresa}
+      hermanos={hermanos}
+      basePathLeads="/admin/leads"
     />
   );
 }

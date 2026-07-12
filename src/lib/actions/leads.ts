@@ -7,6 +7,7 @@ import { prisma } from "@/lib/prisma";
 import { requireAdmin, requireSession } from "@/lib/session";
 import { normalizarTelefono } from "@/lib/whatsapp";
 import { cargaActualPorEjecutiva, elegirEjecutivaConMenosCarga } from "@/lib/asignacion";
+import { upsertEmpresaParaLead } from "@/lib/empresa";
 import type { EstadoLead } from "@prisma/client";
 
 const ESTADOS: EstadoLead[] = [
@@ -37,9 +38,12 @@ export async function crearLeadManual(formData: FormData) {
     autoAsignado = !!asignadaAId;
   }
 
+  const empresaId = await upsertEmpresaParaLead(empresa);
+
   const lead = await prisma.lead.create({
     data: {
       empresa,
+      empresaId,
       contactoNombre: String(formData.get("contactoNombre") ?? "").trim() || null,
       contactoApellido: String(formData.get("contactoApellido") ?? "").trim() || null,
       cargo: String(formData.get("cargo") ?? "").trim() || null,
@@ -113,6 +117,7 @@ export async function importarLeadsCSV(
   let nuevos = 0;
   let duplicados = 0;
   const vistosEnArchivo = new Set<string>();
+  const empresasCache = new Map<string, string>();
   const cargas = await cargaActualPorEjecutiva();
 
   for (const fila of data) {
@@ -127,11 +132,18 @@ export async function importarLeadsCSV(
     }
     vistosEnArchivo.add(telefono);
 
+    let empresaId = empresasCache.get(empresa);
+    if (!empresaId) {
+      empresaId = await upsertEmpresaParaLead(empresa);
+      empresasCache.set(empresa, empresaId);
+    }
+
     const asignadaAId = elegirEjecutivaConMenosCarga(cargas);
 
     const lead = await prisma.lead.create({
       data: {
         empresa,
+        empresaId,
         contactoNombre: fila.contacto_nombre?.trim() || null,
         contactoApellido: fila.contacto_apellido?.trim() || null,
         cargo: fila.cargo?.trim() || null,
