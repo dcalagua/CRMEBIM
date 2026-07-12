@@ -44,7 +44,7 @@ export default function PipelineBoard({ tarjetas }: { tarjetas: TarjetaPipeline[
                     href={t.href}
                     className="block rounded-md border border-gray-200 bg-white p-2 hover:border-emerald-300 hover:shadow-sm transition-shadow"
                   >
-                    <p className="text-xs font-medium text-gray-900 truncate">{t.empresa}</p>
+                    <p className="text-sm font-bold text-gray-900 truncate">{t.empresa}</p>
                     <p className="text-[11px] text-gray-500 truncate">
                       {t.contactoNombre ?? "Sin contacto"}
                     </p>

@@ -46,15 +46,26 @@ export default function FichaLead({
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <div className="lg:col-span-2 space-y-6">
         <div className="bg-white border border-gray-200 rounded-xl p-6">
-          <div className="flex items-start justify-between">
+          <div className="flex items-start justify-between gap-4">
             <div>
-              <h1 className="text-lg font-semibold text-gray-900">{lead.empresa}</h1>
-              <p className="text-sm text-gray-500">
+              <h1 className="text-3xl font-bold text-gray-900 tracking-tight">{lead.empresa}</h1>
+              <p className="text-base font-medium text-gray-700 mt-1">
                 {[lead.contactoNombre, lead.contactoApellido].filter(Boolean).join(" ") ||
                   "Sin contacto"}
-                {lead.cargo ? ` · ${lead.cargo}` : ""}
-                {lead.nivelDecision ? ` (${lead.nivelDecision})` : ""}
+                {lead.cargo ? (
+                  <span className="text-gray-500 font-normal"> · {lead.cargo}</span>
+                ) : null}
+                {lead.nivelDecision ? (
+                  <span className="ml-2 inline-flex items-center rounded-full bg-gray-100 text-gray-600 px-2 py-0.5 text-xs font-medium align-middle">
+                    {lead.nivelDecision}
+                  </span>
+                ) : null}
               </p>
+              {lead.segmento && (
+                <span className="inline-flex items-center rounded-full bg-indigo-50 text-indigo-700 px-2.5 py-1 text-xs font-semibold mt-2">
+                  {lead.segmento}
+                </span>
+              )}
             </div>
             <EstadoBadge estado={lead.estado} />
           </div>
@@ -107,12 +118,6 @@ export default function FichaLead({
                 )}
               </dd>
             </div>
-            {lead.segmento && (
-              <div className="col-span-2">
-                <dt className="text-gray-400">Segmento (línea a ofrecer)</dt>
-                <dd className="text-gray-900 font-medium">{lead.segmento}</dd>
-              </div>
-            )}
           </dl>
 
           <div className="mt-6 flex flex-wrap items-center gap-3">
