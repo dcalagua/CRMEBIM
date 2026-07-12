@@ -2,6 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { obtenerPlantillasAplicables } from "@/lib/plantillas";
 import FichaLead from "@/components/FichaLead";
 
 export default async function EjecutivaLeadPage({
@@ -30,7 +31,7 @@ export default async function EjecutivaLeadPage({
   if (!lead) notFound();
   if (lead.asignadaAId !== session!.user.id) redirect("/ejecutiva");
 
-  const [empresa, hermanos] = await Promise.all([
+  const [empresa, hermanos, plantillas] = await Promise.all([
     lead.empresaId ? prisma.empresa.findUnique({ where: { id: lead.empresaId } }) : null,
     lead.empresaId
       ? prisma.lead.findMany({
@@ -38,6 +39,7 @@ export default async function EjecutivaLeadPage({
           orderBy: { createdAt: "asc" },
         })
       : [],
+    obtenerPlantillasAplicables(lead.segmento),
   ]);
 
   return (
@@ -50,6 +52,7 @@ export default async function EjecutivaLeadPage({
       empresa={empresa}
       hermanos={hermanos}
       basePathLeads="/ejecutiva/leads"
+      plantillas={plantillas}
     />
   );
 }

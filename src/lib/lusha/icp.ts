@@ -1,11 +1,18 @@
 export type SegmentoId =
   | "sap_enterprise"
   | "sap_business_one"
+  | "sap_ams"
   | "odoo"
   | "ia"
+  | "software_factory"
+  | "business_intelligence"
   | "portal_proveedores"
   | "portal_rendiciones"
-  | "gmao";
+  | "gmao"
+  | "wms"
+  | "tms"
+  | "staffing_ti"
+  | "helpdesk";
 
 export type CriteriosSegmento = {
   id: SegmentoId;
@@ -86,6 +93,62 @@ export const SEGMENTOS: Record<SegmentoId, CriteriosSegmento> = {
     sectores: ["Mining", "Manufacturing", "Utilities", "Transportation", "Hospitality", "Real Estate"],
     cargos: ["Gerente de Mantenimiento", "Gerente de Operaciones", "Gerente de Planta", "Jefe de Activos"],
     tamanoEmpresa: ["201-500", "501-1000", "1001-5000"],
+  },
+  sap_ams: {
+    id: "sap_ams",
+    nombre: "SAP AMS + Bolsas de Horas",
+    descripcion: "Empresas que ya operan SAP y necesitan soporte continuo (application management) o staffing por horas.",
+    sectores: ["Mining", "Oil & Energy", "Manufacturing", "Banking"],
+    cargos: ["Gerente de TI", "IT Manager", "SAP Manager", "CIO"],
+    tamanoEmpresa: ["201-500", "501-1000", "1001-5000", "5001-10000"],
+  },
+  software_factory: {
+    id: "software_factory",
+    nombre: "Software Factory / Desarrollo a Medida",
+    descripcion: "Empresas con necesidades de desarrollo custom o proyectos de digitalización, transversal a sector.",
+    sectores: ["Technology, Information & Media", "Financial Services", "Retail & Wholesale Trade", "Manufacturing"],
+    cargos: ["CTO", "Gerente de TI", "Gerente de Desarrollo", "Product Manager"],
+    tamanoEmpresa: ["51-200", "201-500", "501-1000"],
+  },
+  business_intelligence: {
+    id: "business_intelligence",
+    nombre: "PowerBI / Servicios BI",
+    descripcion: "Empresas que necesitan analítica y reportería gerencial, transversal a sector.",
+    sectores: ["Banking", "Retail & Wholesale Trade", "Manufacturing", "Oil, Gas & Mining"],
+    cargos: ["Gerente de TI", "CFO", "Gerente de Finanzas", "Gerente de Business Intelligence"],
+    tamanoEmpresa: ["201-500", "501-1000", "1001-5000"],
+  },
+  wms: {
+    id: "wms",
+    nombre: "WMS (Gestión de Almacenes)",
+    descripcion: "Empresas con operaciones logísticas y almacenes de volumen relevante.",
+    sectores: ["Retail & Wholesale Trade", "Transportation & Logistics", "Manufacturing"],
+    cargos: ["Gerente de Logística", "Gerente de Almacén", "Supply Chain Manager", "Gerente de Operaciones"],
+    tamanoEmpresa: ["201-500", "501-1000", "1001-5000"],
+  },
+  tms: {
+    id: "tms",
+    nombre: "TMS (Gestión de Transporte)",
+    descripcion: "Empresas con flotas propias o gestión de transporte/distribución.",
+    sectores: ["Transportation & Logistics", "Retail & Wholesale Trade", "Oil, Gas & Mining"],
+    cargos: ["Gerente de Transporte", "Gerente de Logística", "Gerente de Flota", "Gerente de Operaciones"],
+    tamanoEmpresa: ["201-500", "501-1000", "1001-5000"],
+  },
+  staffing_ti: {
+    id: "staffing_ti",
+    nombre: "Staffing de TI",
+    descripcion: "Empresas que cubren posiciones de TI de forma temporal o tercerizada, transversal a sector.",
+    sectores: ["Technology, Information & Media", "Banking", "Retail & Wholesale Trade", "Manufacturing"],
+    cargos: ["Gerente de TI", "Gerente de RRHH", "IT Manager", "CIO"],
+    tamanoEmpresa: ["51-200", "201-500", "501-1000"],
+  },
+  helpdesk: {
+    id: "helpdesk",
+    nombre: "Helpdesk / Mesa de Ayuda",
+    descripcion: "Empresas grandes con muchos usuarios internos que requieren soporte TI tercerizado.",
+    sectores: ["Banking", "Retail & Wholesale Trade", "Manufacturing", "Oil, Gas & Mining"],
+    cargos: ["Gerente de TI", "IT Manager", "Gerente de Infraestructura", "CIO"],
+    tamanoEmpresa: ["201-500", "501-1000", "1001-5000", "5001-10000"],
   },
 };
 

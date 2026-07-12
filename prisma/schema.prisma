@@ -43,6 +43,19 @@ enum TipoActividad {
   reunion
 }
 
+model PlantillaMensaje {
+  id        String   @id @default(cuid())
+  nombre    String
+  segmento  String?
+  texto     String
+  activa    Boolean  @default(true)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([segmento])
+  @@map("plantillas_mensaje")
+}
+
 enum EtapaOportunidad {
   creada
   propuesta_enviada

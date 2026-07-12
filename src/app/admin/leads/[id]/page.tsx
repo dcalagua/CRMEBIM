@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { obtenerPlantillasAplicables } from "@/lib/plantillas";
 import FichaLead from "@/components/FichaLead";
 
 export default async function AdminLeadPage({
@@ -29,7 +30,7 @@ export default async function AdminLeadPage({
 
   if (!lead) notFound();
 
-  const [empresa, hermanos] = await Promise.all([
+  const [empresa, hermanos, plantillas] = await Promise.all([
     lead.empresaId ? prisma.empresa.findUnique({ where: { id: lead.empresaId } }) : null,
     lead.empresaId
       ? prisma.lead.findMany({
@@ -37,6 +38,7 @@ export default async function AdminLeadPage({
           orderBy: { createdAt: "asc" },
         })
       : [],
+    obtenerPlantillasAplicables(lead.segmento),
   ]);
 
   return (
@@ -49,6 +51,7 @@ export default async function AdminLeadPage({
       empresa={empresa}
       hermanos={hermanos}
       basePathLeads="/admin/leads"
+      plantillas={plantillas}
     />
   );
 }

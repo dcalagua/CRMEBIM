@@ -1,10 +1,10 @@
-import type { Actividad, Empresa, Lead, Oportunidad, User } from "@prisma/client";
+import type { Actividad, Empresa, Lead, Oportunidad, PlantillaMensaje, User } from "@prisma/client";
 import EstadoBadge from "@/components/EstadoBadge";
-import BotonWhatsApp from "@/components/BotonWhatsApp";
+import BotonWhatsApp, { type OpcionPlantilla } from "@/components/BotonWhatsApp";
 import OportunidadPanel from "@/components/OportunidadPanel";
 import EmpresaPanel from "@/components/EmpresaPanel";
 import ReunionPanel from "@/components/ReunionPanel";
-import { construirLinkWhatsApp } from "@/lib/whatsapp";
+import { construirLinkWhatsApp, aplicarPlaceholders, construirLinkWhatsAppDesdeTexto } from "@/lib/whatsapp";
 import { asignarLead, cambiarEstadoLead, agregarNota } from "@/lib/actions/leads";
 
 const ESTADOS = [
@@ -35,6 +35,7 @@ export default function FichaLead({
   empresa,
   hermanos,
   basePathLeads,
+  plantillas,
 }: {
   lead: Lead & { asignadaA: User | null };
   actividades: (Actividad & { user: User })[];
@@ -44,12 +45,27 @@ export default function FichaLead({
   empresa: Empresa | null;
   hermanos: Lead[];
   basePathLeads: string;
+  plantillas: PlantillaMensaje[];
 }) {
-  const linkWhatsApp = construirLinkWhatsApp(
-    lead.telefono,
-    lead.empresa,
-    lead.contactoNombre
-  );
+  const datosPlaceholder = {
+    nombre: lead.contactoNombre?.trim() || lead.empresa,
+    empresa: lead.empresa,
+    cargo: lead.cargo,
+  };
+
+  const opcionesWhatsApp: OpcionPlantilla[] = plantillas.map((p) => ({
+    id: p.id,
+    nombre: p.nombre,
+    link: construirLinkWhatsAppDesdeTexto(lead.telefono, aplicarPlaceholders(p.texto, datosPlaceholder)),
+  }));
+
+  if (opcionesWhatsApp.length === 0) {
+    opcionesWhatsApp.push({
+      id: "default",
+      nombre: "Mensaje general",
+      link: construirLinkWhatsApp(lead.telefono, lead.empresa, lead.contactoNombre),
+    });
+  }
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -130,7 +146,7 @@ export default function FichaLead({
           </dl>
 
           <div className="mt-6 flex flex-wrap items-center gap-3">
-            <BotonWhatsApp leadId={lead.id} link={linkWhatsApp} />
+            <BotonWhatsApp leadId={lead.id} opciones={opcionesWhatsApp} />
 
             <form action={cambiarEstadoLead} className="flex items-center gap-2">
               <input type="hidden" name="leadId" value={lead.id} />

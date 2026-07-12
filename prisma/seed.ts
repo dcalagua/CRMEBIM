@@ -27,6 +27,24 @@ async function upsertUsuario(datos: {
   console.log(`Usuario listo: ${usuario.email} (${usuario.rol})`);
 }
 
+async function upsertPlantillaGeneral() {
+  const existente = await prisma.plantillaMensaje.findFirst({ where: { segmento: null } });
+  if (existente) {
+    console.log("Plantilla general ya existe, se omite.");
+    return;
+  }
+
+  await prisma.plantillaMensaje.create({
+    data: {
+      nombre: "General - primer contacto",
+      segmento: null,
+      texto:
+        "Hola {{nombre}}, te escribo de EBIM. ¿Tienes un momento para conversar sobre {{empresa}}?",
+    },
+  });
+  console.log("Plantilla general creada.");
+}
+
 async function main() {
   await upsertUsuario({
     nombre: "Denis",
@@ -54,6 +72,8 @@ async function main() {
     rol: "ejecutiva",
     pais: "EC",
   });
+
+  await upsertPlantillaGeneral();
 
   console.log("\nContraseña inicial para todos:", process.env.SEED_DEFAULT_PASSWORD ?? "CambiarEsta123!");
   console.log("Cámbiala luego desde el panel de usuarios.");

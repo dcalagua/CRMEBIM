@@ -7,6 +7,7 @@ const links = [
   { href: "/admin/leads", label: "Leads" },
   { href: "/admin/oportunidades", label: "Oportunidades" },
   { href: "/admin/agente", label: "Agente Lusha" },
+  { href: "/admin/plantillas", label: "Plantillas" },
   { href: "/admin/usuarios", label: "Usuarios" },
 ];
 
